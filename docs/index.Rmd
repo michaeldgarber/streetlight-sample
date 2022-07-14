@@ -6,4 +6,4 @@ The method for sampling 298 counties can be found here:
 
 https://michaeldgarber.github.io/streetlight-sample/sample-streetlight-counties.html
 
-Source repository: <https://github.com/michaeldgarber/green-space-denver>
+Source repository: https://github.com/michaeldgarber/streetlight-sample
