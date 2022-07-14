@@ -3,15 +3,15 @@ title: "Sampling counties for Streetlight analysis"
 author: ''
 date: "Revised July 14, 2022"
 output:
+  word_document:
+    toc: yes
+  # pdf_document:
+  #   toc: yes
   html_document:
     toc: yes
     toc_float: yes
     df_print: paged
     number_sections: yes
-  # pdf_document:
-  #   toc: yes
-  word_document:
-    toc: yes
 ---
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -69,14 +69,15 @@ Make some new variables, remove a few variables, and exclude Alaska and Hawaii.
 To link in state abbreviations, urban-rural classification, and regions and divisions.
 
 
-```{r eval=TRUE, eval=TRUE, message = FALSE, warning = FALSE, echo=FALSE}
-# Import these look-ups for convenience
-us_state_fips_url = "https://raw.githubusercontent.com/michaeldgarber/lookups-county-state/main/us-state-fips.csv"
-county_urban_rural_2013_url = "https://raw.githubusercontent.com/michaeldgarber/lookups-county-state/main/nchs-urban-rural-2013.csv"
-region_division_url = "https://raw.githubusercontent.com/michaeldgarber/lookups-county-state/main/division-region.csv"
+Update July 14, 2022: For peer review, the URL objects are defined in a separate code because they have identifying information.
+```{r eval=TRUE, eval=TRUE, message = FALSE, warning = FALSE, echo=TRUE}
+# Import these look-up tables from Github for convenience.
+#They are written elsewhere so this code doesn't have any identifying information.
+library(here)
+source(here("scripts", "define-urls-look-up-tables.R"))
 ```
 
-Update July 14, 2022: For peer review, the URL objects are defined in a hidden code chunk because they have identifying information.
+
 ```{r load lookups, eval=TRUE, message = FALSE, warning = FALSE, echo=TRUE}
 us_state_fips_lookup = us_state_fips_url %>% 
   url() %>% 
