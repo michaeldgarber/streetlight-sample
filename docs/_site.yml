@@ -1,0 +1,7 @@
+name: "Sampling counties for Streetlight analysis"
+output_dir: "."
+navbar:
+  left:
+    - icon: fa-home
+      href: https://michaeldgarber.github.io/
+      text: "MDG"
