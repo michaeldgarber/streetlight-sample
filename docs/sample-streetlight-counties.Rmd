@@ -21,7 +21,6 @@ knitr::opts_chunk$set(echo = TRUE)
 # Intro
 
 ## Summary of approach
-Revised approach. Easier to compute and interpret.
 
 * Restrict sampling frame to counties of 48 contiguous United States above the 10th percentile of population (2,838) of the most rural group.
 * Select all counties in the most urban stratum
@@ -566,6 +565,7 @@ by_ur %>% filter(urban_rural_6==1)
 ```
 
 Adding that to the 31% of the population sampled by selecting the most urban counties brings the total proportion of the population sampled to about 50%.
+
 ### By urban-rural
 ```{r urban-rural-results, warning = FALSE, message = FALSE}
 samp_by_urban_rural_region = samp_fun_df %>% 
