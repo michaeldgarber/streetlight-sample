@@ -26,7 +26,7 @@ knitr::opts_chunk$set(echo = TRUE)
 * Select all counties in the most urban stratum
 * Sample the remaining counties stratified by the five remaining urban-rural categories and by the four regions (total of 4*5=20 strata). In each stratum, weight sampling proportional to the remaining population in that urban-rural-region stratum (`prop_pop_elig_rem`, in the code below).
 
-An advantage of this approach is that, within each of the 20 strata, counties are randomly sampled, so in expectation, estimates will be representative of the full population of counties in that stratum. urban-rural-region stratum (n=20=4*5). It's also more straightforward to integrate weights if pooled estimates are of interest. Please see bottom of document for a work-in-progress pooled estimate of proportion bike/walk to work.
+An advantage of this approach is that, within each of the 20 strata, counties are randomly sampled, so in expectation, estimates will be representative of the full population of counties in that stratum. urban-rural-region stratum (n=20=4*5).
 
 
 Load packages
