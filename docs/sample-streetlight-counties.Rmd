@@ -3,15 +3,15 @@ title: "Sampling counties for Streetlight analysis"
 author: ''
 date: "Revised July 14, 2022"
 output:
-  word_document:
-    toc: yes
-  # pdf_document:
-  #   toc: yes
   html_document:
     toc: yes
     toc_float: yes
     df_print: paged
     number_sections: yes
+  # pdf_document:
+  #   toc: yes
+  word_document:
+    toc: yes
 ---
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -289,7 +289,9 @@ region_4_sf %>%
 ## Number of counties and total population: contiguous 48
 ```{r howmany}
 #marginal total to not be confused with the joint values below
-n_counties_marg = county_wrangle_nogeo %>% count() %>% pull()
+n_counties_marg = county_wrangle_nogeo %>% 
+  count() %>% 
+  pull()
 n_counties_marg
 
 pop_marg_total = county_wrangle_nogeo %>% 
@@ -319,6 +321,7 @@ pop_marg_elig = county_wrangle_nogeo %>%
   dplyr::select(-dummy) %>%
   ungroup() %>% 
   pull()
+
 pop_marg_elig 
 ```
 ## Number of counties and population total by urban-rural classification
@@ -334,7 +337,10 @@ by_ur = county_wrangle_nogeo %>%
 
 by_ur
 
-n_counties_ur_1 = by_ur %>% filter(urban_rural_6==1) %>% dplyr::select(n_counties) %>% pull()
+n_counties_ur_1 = by_ur %>% 
+  filter(urban_rural_6==1) %>% 
+  dplyr::select(n_counties) %>% 
+  pull()
 ```
 The most urban category comprises 68 counties, which is 2% of the counties in the sampling frame and 31% of the population.
 
@@ -396,8 +402,12 @@ margin_total_rem = county_wrangle_nogeo %>% #rem for remaining
     n_counties = n(),  
     pop = sum(pop, na.rm=TRUE))
 
-pop_marg_elig_rem  = margin_total_rem %>% dplyr::select(pop) %>% pull()
-n_counties_marg_elig_rem = margin_total_rem %>% dplyr::select(n_counties) %>% pull()
+pop_marg_elig_rem  = margin_total_rem %>% 
+  dplyr::select(pop) %>% 
+  pull()
+n_counties_marg_elig_rem = margin_total_rem %>% 
+  dplyr::select(n_counties) %>% 
+  pull()
 n_counties_left = 300- n_counties_ur_1 #the number of counties we have left.
 
 urban_rural_region_strata = county_wrangle_nogeo %>% 
@@ -410,7 +420,9 @@ urban_rural_region_strata = county_wrangle_nogeo %>%
   ) %>% 
   ungroup() %>% 
   mutate(
-    prop_pop_elig_rem =  pop_stratum/pop_marg_elig_rem, #the proportion of the population remaining in each urban-rural-region stratum
+    #Note pop_marg_elig_rem is not in this dataset. It is a value created just above.
+    #the proportion of the population remaining in each urban-rural-region stratum
+    prop_pop_elig_rem =  pop_stratum/pop_marg_elig_rem, 
     n_counties_to_sample = n_counties_left*prop_pop_elig_rem,  #number of counties left times the proportion of remaining population in that stratum.
     n_counties_to_sample_rnd = round(n_counties_to_sample),  #for sample_n, we need a rounded version
     prop_counties_rem_to_sample = n_counties_to_sample/n_counties_marg_elig_rem,#the sampling fraction
@@ -428,7 +440,8 @@ options(scipen = 99, digits = 2) #set to fewer decimals before printing table
 urban_rural_region_strata  
 
 #Create a dataset of weights only.
-wts = urban_rural_region_strata %>% dplyr::select(urban_rural_6, region_4_no, wt, wt_prop)
+wts = urban_rural_region_strata %>% 
+  dplyr::select(urban_rural_6, region_4_no, wt, wt_prop)
 ```
 
 Does the total number sampled in each stratum add up to the total remaining?
@@ -492,10 +505,11 @@ draw_sample   <-function(s_id_val){
       left_join(urban_rural_region_strata, by = c("urban_rural_6", "region_4_no")) %>%
       group_by(urban_rural_6, region_4_no) %>% 
       #hmm, need to be able to vary sampling proportion by group - https://github.com/tidyverse/dplyr/issues/5299
-      #slice_sample is the more recent update, but sample_n is better for this application.
+      #slice_sample is the more recent dplyr update, but sample_n is better for this application.
       #Use the solution by thc here: https://stackoverflow.com/questions/51671856/dplyr-sample-n-by-group-with-unique-size-argument-per-group/59186490#59186490l
       sample_n(
-        size=n_counties_to_sample_rnd[1], #the subset operator, [] takes the first value in that column by group. see above for definition.
+  #the subset operator, [] takes the first value in that column by group. see above for definition.
+        size=n_counties_to_sample_rnd[1], 
         replace=FALSE) %>%
       mutate(
         sampled=1,
