@@ -1,4 +1,5 @@
 #A simple script version where the counties are sampled
+# Created February 3, 2023
 #For the more complete steps, see
 #streetlight-sample/docs/sample-streetlight-counties.Rmd
 
@@ -39,7 +40,10 @@ samp_298 = samp_ur_1 %>%
   bind_rows(samp_230) %>% 
   arrange(county_fips)
 
+nrow(samp_298)
 # save sample
 save(samp_298, file = "samp_298.RData")
 
+#write as a CSV in case needed
+write_csv(samp_298, file = "samp_298.csv")
 
