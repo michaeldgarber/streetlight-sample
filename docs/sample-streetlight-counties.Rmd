@@ -219,9 +219,13 @@ county_wrangle_geo = county_geo %>%
   
 
 #Make a version without geometry
-county_wrangle_nogeo = county_wrangle_geo %>% st_set_geometry(NULL)
-county_geo_lookup = county_wrangle_geo %>% dplyr::select(county_fips, geometry)
+county_wrangle_nogeo = county_wrangle_geo %>% 
+  st_set_geometry(NULL) %>% 
+  as_tibble()
+county_geo_lookup = county_wrangle_geo %>% 
+  dplyr::select(county_fips, geometry)
 
+setwd(here("data-processed"))
 save(county_wrangle_nogeo, file = "county_wrangle_nogeo.RData")
 save(county_geo_lookup, file = "county_geo_lookup.RData")
 ```
@@ -383,7 +387,6 @@ county_wrangle_geo %>%
         layer.name = "Population quartiles (1=min-25th; 4=75th-max)",
         map.types = c("CartoDB.Positron"),
     lwd=1.5,
-
   col.regions = viridis_pal(alpha = 1, begin = .25, end = 1, direction = 1, option = "H"), #turbo :)
   popup = FALSE #for faster rendering
     )
@@ -437,7 +440,12 @@ urban_rural_region_strata = county_wrangle_nogeo %>%
     wt_prop = wt/sum(wt) #each weight's relative weight. sums to 1. easier than using the actual weight.
 ) 
 options(scipen = 99, digits = 2) #set to fewer decimals before printing table
+
+
 urban_rural_region_strata  
+setwd(here("data-processed"))
+save(urban_rural_region_strata, file = "urban_rural_region_strata.RData")
+
 
 #Create a dataset of weights only.
 wts = urban_rural_region_strata %>% 
@@ -448,7 +456,9 @@ Does the total number sampled in each stratum add up to the total remaining?
 No, due to rounding, 2 are missing.
 ```{r confirm add up to 150, warning = FALSE, message = FALSE}
 n_counties_left
-urban_rural_region_strata %>%  mutate(dummy=1) %>%  group_by(dummy) %>%  
+urban_rural_region_strata %>%  
+  mutate(dummy=1) %>%  
+  group_by(dummy) %>%  
   summarise( n_counties_to_sample_rnd=sum(n_counties_to_sample_rnd)) %>% 
   pull(n_counties_to_sample_rnd)
 ```
