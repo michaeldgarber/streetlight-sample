@@ -56,7 +56,7 @@ nrow(samp_230) #are there 230 left?
 
 #So that we can add back in the 68, also create a dataset filtered to just those:
 samp_68 = samp_298_2_vars %>% 
-  filter(urban_rural_6==1) #exclude counties in this category
+  filter(urban_rural_6==1) 
 
 samp_68
 nrow(samp_68)
@@ -87,7 +87,7 @@ rep_id_val_list = 1:1000 #create a sequence of numbers between 1 and 1,000
 boot_lots  = rep_id_val_list %>% 
   map_dfr(boot_fun) #map_dfr is in the purrr() family of functions\
                     #map_dfr specifically row binds each iteration together
-                    #(vs map_dfc, which would colum bind)
+                    #(vs map_dfc, which would column bind)
 
 #Check out the resulting dataset.
 #It should be 1,000 samples stacked on top of one another,
