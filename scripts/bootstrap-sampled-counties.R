@@ -53,12 +53,21 @@ samp_230 = samp_298_2_vars %>%
 
 nrow(samp_230) #are there 230 left?
 
+#So that we can add back in the 68, also create a dataset filtered to just those:
+samp_68 = samp_298_2_vars %>% 
+  filter(urban_rural_6==1) #exclude counties in this category
+
+samp_68
+nrow(samp_68)
 boot_fun = function(rep_id_val){
   boot_df = samp_230 %>% 
     group_by(urban_rural_6, region_4_no) %>% #group by the urban-rural-region strata 
     slice_sample(prop=1,replace=TRUE) %>% #sample by group with replacement
-    mutate(rep_id = rep_id_val) %>%  #to keep track of replications
-    ungroup()
+    ungroup() %>% 
+    
+    #Add the 68 urban counties back in so that each sample has 298 counties
+    bind_rows(samp_68) %>% 
+    mutate(rep_id = rep_id_val)  #to keep track of replications
 }
 
 ## Run the function once to see what happens------
@@ -73,13 +82,17 @@ mean(boot_test$x)
 rep_id_val_list = 1:1000 #create a sequence of numbers between 1 and 1,000
         #This will create a new "rep_id" for every number
 
-#This might take a few seconds
+#Run the bootstrapping function lots of times.
 boot_lots  = rep_id_val_list %>% 
   map_dfr(boot_fun) #map_dfr is in the purrr() family of functionss
+                    #see above link for more explanation
 
 #Check it out
 boot_lots
-#how many replication ids?
+#Are there 100 distinct values for the rep_id?
+n_distinct(boot_lots$rep_id)
+
+
 ## Summarize correlation over replications--------
 ### First calculate the correlation in each of the samples------
 summarize_corr_by_boot_rep = boot_lots %>% 
