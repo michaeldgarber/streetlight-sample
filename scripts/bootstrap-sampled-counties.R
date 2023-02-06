@@ -34,8 +34,7 @@ corr_made_up_vars_by_group = samp_298_2_vars %>%
   group_by(urban_rural_6, region_4_no) %>% #group by the urban-rural-region strata, say
   summarise(
     corr_pears = cor( x, y, method = "pearson", use="complete.obs"),
-    corr_spear =  #spearman rank
-      cor(x, y, method = "spearman", use="complete.obs")
+    corr_spear = cor(x, y, method = "spearman", use="complete.obs")
     ) %>% 
   ungroup()
 
