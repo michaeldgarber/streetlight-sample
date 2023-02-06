@@ -45,8 +45,9 @@ corr_made_up_vars_by_group
 #https://michaeldgarber.github.io/teach-r/monte-carlo-sim-bootstrapping-purrr.html
 
 ## Write a function to re-sample observations by group-----
-#Only the 230 counties were actually sampled; 68 were "forced in" so probably shouldn't factor into
-#the sampling variability.  So let's make a new dataset with just the 230 that were sampled
+#Only the 230 counties were actually sampled; 68 were simply selected rather than
+#sampled, so those 68 probably shouldn't factor into the sampling variability.  
+#So let's make a new dataset with just the 230 that were sampled
 
 samp_230 = samp_298_2_vars %>% 
   filter(urban_rural_6!=1) #exclude counties in this category
@@ -84,10 +85,15 @@ rep_id_val_list = 1:1000 #create a sequence of numbers between 1 and 1,000
 
 #Run the bootstrapping function lots of times.
 boot_lots  = rep_id_val_list %>% 
-  map_dfr(boot_fun) #map_dfr is in the purrr() family of functionss
-                    #see above link for more explanation
+  map_dfr(boot_fun) #map_dfr is in the purrr() family of functions\
+                    #map_dfr specifically row binds each iteration together
+                    #(vs map_dfc, which would colum bind)
 
-#Check it out
+#Check out the resulting dataset.
+#It should be 1,000 samples stacked on top of one another,
+#so n, rows= 298*1,000
+289*1000
+nrow(boot_lots)
 boot_lots
 #Are there 100 distinct values for the rep_id?
 n_distinct(boot_lots$rep_id)
