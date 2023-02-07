@@ -21,8 +21,8 @@ samp_298 = 1:298 %>%
 # Calculate correlation between ACS / Streetlight variables ------
 samp_298_corrs = samp_298 %>% 
   mutate(dummy=1) %>% #1 for every obs so that we can group by the whole dataset
-  group_by(dummy) %>% #now group by that dummy variable; this will collapse the dataset into one observation
-  summarise(
+  group_by(dummy) %>% #now group by that dummy variable; 
+  summarise(#the group_by() %>% summarise() combo will collapse the dataset into one observation (n, groups)
     corr_spear_var_1 = cor(var_1_acs, var_1_streetlight, method = "spearman", use="complete.obs"),
     corr_spear_var_2 = cor(var_2_acs, var_2_streetlight, method = "spearman", use="complete.obs"),
     corr_spear_var_3 = cor(var_3_acs, var_3_streetlight, method = "spearman", use="complete.obs")
