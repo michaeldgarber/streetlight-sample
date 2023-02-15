@@ -1,5 +1,6 @@
 #Bootstrap the sample
 # February 3, 2023
+#Updated Feb 15 2023 to count number of times a county appears in each bootstrap replicate
 
 library(here) #for managing working directory
 library(tidyverse)
@@ -7,16 +8,16 @@ library(readr) #for working with CSVs
 
 # Load data---------
 
+#(In my personal project folder (not all on GitHub), 
+# I have a folder called data-processed
+# data-processed in the same parent directory where my R project file is located.
 setwd(here("data-processed")) #Set working directory. 
-          #(In my personal project folder (not all on GitHub), I have a folder called data-processed
-          # data-processed in the same parent directory where my R project file is located.
-
+        
 #In this folder, I put an .RData version of the sampled counties
 load("samp_298.RData")
 #Note if the data were in Excel, then we could
 readr::read_csv("samp_298.csv")
 
-samp_298 #check it to make sure
 
 # Add two made-up variables that could be correlated with one another-------
 samp_298_2_vars = samp_298 %>% 
@@ -31,7 +32,8 @@ cor(samp_298_2_vars$x, samp_298_2_vars$y) #yes, correlated
 # Check correlation by_group() %>% summarise()------
 # a tidyverse way to assess correlation by group
 corr_made_up_vars_by_group = samp_298_2_vars %>% 
-  group_by(urban_rural_6, region_4_no) %>% #group by the urban-rural-region strata, say
+  #Say we wanted to assess correlation within each urban-rural-region strata
+  group_by(urban_rural_6, region_4_no) %>% 
   summarise(
     corr_pears = cor( x, y, method = "pearson", use="complete.obs"),
     corr_spear = cor(x, y, method = "spearman", use="complete.obs")
@@ -126,6 +128,121 @@ summarize_corr_over_boot_reps = summarize_corr_by_boot_rep %>%
 #Print confidence intervals
 summarize_corr_over_boot_reps
 
+# How many unique counties are there in each replicate?------
+#Feb 15 2023
+#The object, 'boot_lots', is the dataset of samples stacked on top of one another.
+#In each sample, we can find the number of times a county appears (it might be not at all)
+n_times_county_appears_each_sample = boot_lots %>% 
+  #first filter to the 230 counties that were sampled,
+  #as the other 68 will appear in every replicate
+  
+  #the "sampled" variable refers to whether it's one of the 230 or not,
+  #not whether it was sampled in that particular bootstrap replicate.
+  filter(sampled==1) %>% 
+  #group by the id for the replicate and the county_id
+  group_by(rep_id,county_fips) %>% 
+  #Use n() within summarise() to count the number of 
+  #times a county_id appears in each replicate
+  summarise(n_times_in_sample = n()) %>% 
+  ungroup()
+
+
+n_times_county_appears_each_sample
+
+#How many unique counties are in each sample?
+#We can answer this by counting the number of times county_fips appears at all
+#in a given rep_id
+n_unique_counties_each_sample = n_times_county_appears_each_sample %>% 
+  group_by(rep_id) %>% 
+  summarise(n_unique_counties_each_rep = n()) %>% 
+  ungroup() %>% 
+  #summarize (mean, sd) that variable over all datas
+  mutate(dummy=1) %>% 
+  group_by(dummy) %>% 
+  summarise(
+    n_unique_counties_each_rep_mean = mean(n_unique_counties_each_rep,na.rm=TRUE),
+    n_unique_counties_each_rep_sd = sd(n_unique_counties_each_rep,na.rm=TRUE),
+    n_unique_counties_each_rep_var = var(n_unique_counties_each_rep,na.rm=TRUE)
+  ) %>% 
+  ungroup() %>% 
+  #Remember this is just the sampled counties. The other 68 will always be there,
+  #so we could just add 68 to the mean, as it's a constant, if we wanted to include
+  #those 68 in this number.
+  #The SD and variance would be the same.
+  mutate(
+    n_unique_counties_each_rep_mean_inc_68 = n_unique_counties_each_rep_mean+68,
+    n_unique_counties_each_rep_sd_inc_68 = n_unique_counties_each_rep_sd ,
+    n_unique_counties_each_rep_var_inc_68 = n_unique_counties_each_rep_var
+  )
+  
+
+n_unique_counties_each_sample
+#To see all var names better
+View(n_unique_counties_each_sample)
+
+
+
+#We may also want to calculate the average number of times counties appear
+#in each sample (rather than unique counties)
+
+#To make sure that we count replicates where a county is not included,
+#I'm going to begin with a dataset of replications where each of the 230 counties are 
+#included in every replicate, and we can then link the bootstrap samples to this dataset
+#to count replicates where a county was not sampled as well
+samp_230_1000 =samp_298 %>% 
+  filter(sampled==1) %>% 
+  #uncount is a way to stack identical datasets on top of one another
+  #n times
+  uncount(1000) %>%
+  #generate an equivalent "rep_id" variable here
+  #so we can link the bootstrapped data in
+  
+  #Group by county and then take the row_number() to do this
+  group_by(county_fips) %>% 
+  mutate(rep_id = row_number()) %>%
+  ungroup() %>%  #back to ungrouped
+  #remove variables other than county_fips and rep_id before left_join()
+  dplyr::select(county_fips, rep_id)
+
+#Okay, now we can link n_times_county_appears_each_sample
+#to samp_230_1000 in which we know every county appears exactly once
+
+n_times_county_appears_linked = samp_230_1000 %>% 
+  #begin with samp_230_1000 and then left_join()
+  #n_times_county_appears_each_sample to it
+  #left join by both county fips and rep id
+  left_join(n_times_county_appears_each_sample, by = c("county_fips","rep_id")) %>% 
+  #now, if the variable n_times_in_sample is missing (NA), we know it wasn't included
+  #in that replicate. Let's make a new variable that makes those instances
+  #zero instead.
+  mutate(
+    #This code says... if n_times_in_sample is missing, make it zero
+    #else, set it equal to n_times_in_sample
+    n_times_in_sample_linked = case_when(
+      #small nuance: n_times_in_sample is an integer, so we need the as.integer()
+      is.na(n_times_in_sample) ==TRUE~as.integer(0),
+      TRUE ~ n_times_in_sample
+    )
+  )
+
+#Compare n_times_in_sample with n_times_in_sample_linked
+n_times_county_appears_linked
+
+#Now summarize n_times_in_sample_linked by county
+n_times_in_sample_summary_by_county = n_times_county_appears_linked %>% 
+  group_by(county_fips) %>% 
+  summarise(
+    n_times_in_sample_mean=mean(n_times_in_sample_linked, na.rm=TRUE),#mean
+    n_times_in_sample_sd=sd(n_times_in_sample_linked, na.rm=TRUE),#sd
+    n_times_in_sample_var=var(n_times_in_sample_linked, na.rm=TRUE),#variance
+    n_times_in_sample_min=min(n_times_in_sample_linked, na.rm=TRUE),#minimum
+    n_times_in_sample_max=max(n_times_in_sample_linked, na.rm=TRUE)#maximum
+    )
+
+n_times_in_sample_summary_by_county
+#can then summarize each of those variables
+#on average, a county is sampled once( mean,n_times_in_sample_mean=1)
+summary(n_times_in_sample_summary_by_county)
     
   
 
