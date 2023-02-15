@@ -158,7 +158,7 @@ n_unique_counties_each_sample = n_times_county_appears_each_sample %>%
   group_by(rep_id) %>% 
   summarise(n_unique_counties_each_rep = n()) %>% 
   ungroup() %>% 
-  #summarize (mean, sd) that variable over all datas
+  #summarize (mean, sd) that variable over all data (first create dummy var)
   mutate(dummy=1) %>% 
   group_by(dummy) %>% 
   summarise(
@@ -168,9 +168,10 @@ n_unique_counties_each_sample = n_times_county_appears_each_sample %>%
   ) %>% 
   ungroup() %>% 
   #Remember this is just the sampled counties. The other 68 will always be there,
-  #so we could just add 68 to the mean, as it's a constant, if we wanted to include
-  #those 68 in this number.
-  #The SD and variance would be the same.
+  #so we could just add 68 to the mean, 
+  #as it's a constant (mean(constant+RV)=mean(RV)+mean(constant)), 
+  #if we wanted to include those 68 in this number.
+  #The SD and variance would be the same (sd(constant+RV)=sd(RV))
   mutate(
     n_unique_counties_each_rep_mean_inc_68 = n_unique_counties_each_rep_mean+68,
     n_unique_counties_each_rep_sd_inc_68 = n_unique_counties_each_rep_sd ,
@@ -184,6 +185,7 @@ View(n_unique_counties_each_sample)
 
 
 
+# Average n, times a given county appears in each sample------
 #We may also want to calculate the average number of times counties appear
 #in each sample (rather than unique counties)
 
