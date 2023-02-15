@@ -1,6 +1,8 @@
 #Bootstrap the sample
 # February 3, 2023
-#Updated Feb 15 2023 to count number of times a county appears in each bootstrap replicate
+#Updated Feb 15 2023 to calculate number of unique counties in each bootstrap 
+#replicate and average (and SD) number of times a given county appears 
+#in each bootstrap replicate
 
 library(here) #for managing working directory
 library(tidyverse)
