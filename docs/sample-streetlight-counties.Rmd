@@ -1,7 +1,7 @@
 ---
 title: "Sampling counties for Streetlight analysis"
 author: ''
-date: "Revised July 14, 2022"
+date: "Revised April, 2023"
 output:
   html_document:
     toc: yes
@@ -71,9 +71,11 @@ To link in state abbreviations, urban-rural classification, and regions and divi
 Update July 14, 2022: For peer review, the URL objects are defined in a separate code because they have identifying information.
 ```{r eval=TRUE, eval=TRUE, message = FALSE, warning = FALSE, echo=TRUE}
 # Import these look-up tables from Github for convenience.
-#They are written elsewhere so this code doesn't have any identifying information.
 library(here)
 source(here("scripts", "define-urls-look-up-tables.R"))
+
+#On GitHub, this script is located here:
+#https://github.com/michaeldgarber/streetlight-sample/blob/main/scripts/define-urls-look-up-tables.R
 ```
 
 
