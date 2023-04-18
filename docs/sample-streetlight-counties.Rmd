@@ -67,15 +67,16 @@ Make some new variables, remove a few variables, and exclude Alaska and Hawaii.
 ## Load look-up tables from GitHub
 To link in state abbreviations, urban-rural classification, and regions and divisions.
 
-
-Update July 14, 2022: For peer review, the URL objects are defined in a separate code because they have identifying information.
 ```{r eval=TRUE, eval=TRUE, message = FALSE, warning = FALSE, echo=TRUE}
 # Import these look-up tables from Github for convenience.
 library(here)
 source(here("scripts", "define-urls-look-up-tables.R"))
 
-#On GitHub, this script is located here:
-#https://github.com/michaeldgarber/streetlight-sample/blob/main/scripts/define-urls-look-up-tables.R
+#Alternatively, they are available here:
+us_state_fips_url = "https://raw.githubusercontent.com/michaeldgarber/lookups-county-state/main/us-state-fips.csv"
+county_urban_rural_2013_url = "https://raw.githubusercontent.com/michaeldgarber/lookups-county-state/main/nchs-urban-rural-2013.csv"
+region_division_url = "https://raw.githubusercontent.com/michaeldgarber/lookups-county-state/main/division-region.csv"
+
 ```
 
 
